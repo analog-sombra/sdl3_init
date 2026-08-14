@@ -1,110 +1,161 @@
-#define VULKAN_HPP_ENABLE_DYNAMIC_LOADER_TOOL 0
+// #define VULKAN_HPP_ENABLE_DYNAMIC_LOADER_TOOL 0
+
+// https://www.youtube.com/watch?v=SpspkiGChww&list=PLvv0ScY6vfd-RZSmGbLkZvkgec6lJ0BfX&index=17
 #include <iostream>
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_vulkan.h>
-#include <format>
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_raii.hpp>
-using namespace std;
+// #include <SDL3/SDL_vulkan.h>
+// #include <format>
+// #include <vulkan/vulkan.h>
+// #include <vulkan/vulkan_raii.hpp>
 
-class SDLException final : public std::runtime_error
-{
-public:
-    SDLException(const std::string &message) : std::runtime_error(std::format("SDL Error: {} -> {}", message, SDL_GetError()))
-    {
-    }
-};
+// using namespace std;
+// class SDLException final : public std::runtime_error
+// {
+// public:
+//     SDLException(const std::string &message) : std::runtime_error(std::format("SDL Error: {} -> {}", message, SDL_GetError()))
+//     {
+//     }
+// };
 
-class App
-{
-    std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window{nullptr, SDL_DestroyWindow};
-    bool running{true};
+// class App
+// {
+//     std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window{nullptr, SDL_DestroyWindow};
+//     bool running{true};
 
-public:
-    App()
-    {
-        if (!SDL_Init(SDL_INIT_VIDEO))
-        {
-            throw SDLException("SDL_Init failed");
-            // SDL_Log("SDL_Init failed: %s", SDL_GetError());
-            return;
-        }
+// public:
+//     App()
+//     {
+//         if (!SDL_Init(SDL_INIT_VIDEO))
+//         {
+//             throw SDLException("SDL_Init failed");
+//             // SDL_Log("SDL_Init failed: %s", SDL_GetError());
+//             return;
+//         }
 
-        if (!SDL_Vulkan_LoadLibrary(nullptr))
-        {
-            throw SDLException("SDL_Vulkan_LoadLibrary failed");
-            // SDL_Log("SDL_Vulkan_LoadLibrary failed: %s", SDL_GetError());
-            return;
-        }
+//         if (!SDL_Vulkan_LoadLibrary(nullptr))
+//         {
+//             throw SDLException("SDL_Vulkan_LoadLibrary failed");
+//             // SDL_Log("SDL_Vulkan_LoadLibrary failed: %s", SDL_GetError());
+//             return;
+//         }
 
-        window.reset(SDL_CreateWindow("Vulkan Window", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN));
+//         window.reset(SDL_CreateWindow("Vulkan Window", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN));
 
-        if (!window)
-        {
-            throw SDLException("SDL_CreateWindow failed");
-            // SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
-            return;
-        }
+//         if (!window)
+//         {
+//             throw SDLException("SDL_CreateWindow failed");
+//             // SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
+//             return;
+//         }
 
-        cout << "App constructor called." << endl;
-    }
+//         cout << "App constructor called." << endl;
+//     }
 
-    ~App()
-    {
-        window.reset();
-        SDL_Vulkan_UnloadLibrary();
-        SDL_Quit();
-        cout << "App destructor called." << endl;
-    }
+//     ~App()
+//     {
+//         window.reset();
+//         SDL_Vulkan_UnloadLibrary();
+//         SDL_Quit();
+//         cout << "App destructor called." << endl;
+//     }
 
-    void init()
-    {
-        cout << "App initialized." << endl;
-    }
+//     void init()
+//     {
+//         cout << "App initialized." << endl;
+//     }
 
-    void Run()
-    {
+//     void Run()
+//     {
 
-        cout << "App is running." << endl;
-        SDL_ShowWindow(window.get());
-        while (running)
-        {
-            SDL_Event event;
-            for (SDL_Event event; SDL_PollEvent(&event);)
-            {
-                if (event.type == SDL_EVENT_QUIT)
-                    running = false;
-            }
-        }
-    }
-};
+//         cout << "App is running." << endl;
+//         SDL_ShowWindow(window.get());
+//         while (running)
+//         {
+//             SDL_Event event;
+//             for (SDL_Event event; SDL_PollEvent(&event);)
+//             {
+//                 if (event.type == SDL_EVENT_QUIT)
+//                     running = false;
+//             }
+//         }
+//     }
+// };
+
+// int main()
+// {
+//     cout << "Hello, World!" << endl;
+//     try
+//     {
+
+//         App app;
+//         app.init();
+//         app.Run();
+//     }
+//     catch (const SDLException &e)
+//     {
+//         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL Exception: %s", e.what());
+//         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL Exception", e.what(), nullptr);
+//         return EXIT_FAILURE;
+//     }
+//     catch (const std::exception &e)
+//     {
+//         std::cerr << "Standard exception: " << e.what() << std::endl;
+//         return EXIT_FAILURE;
+//     }
+//     catch (...)
+//     {
+//         std::cerr << "Unknown exception occurred." << std::endl;
+//         return EXIT_FAILURE;
+//     }
+
+//     return 0;
+// }
 
 int main()
 {
-    cout << "Hello, World!" << endl;
-    try
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Init failed: %s", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+    SDL_Window *window = SDL_CreateWindow("Vulkan Window", 800, 600, SDL_WINDOW_RESIZABLE);
 
-        App app;
-        app.init();
-        app.Run();
-    }
-    catch (const SDLException &e)
-    {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL Exception: %s", e.what());
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL Exception", e.what(), nullptr);
-        return EXIT_FAILURE;
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Standard exception: " << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
-    catch (...)
-    {
-        std::cerr << "Unknown exception occurred." << std::endl;
-        return EXIT_FAILURE;
-    }
+    bool running = true;
+    const bool *keys = SDL_GetKeyboardState(nullptr);
 
-    return 0;
+    while (running)
+    {
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_EVENT_QUIT)
+            {
+                running = false;
+            }
+            else if (event.type == SDL_EVENT_KEY_DOWN)
+            {
+                SDL_Log("Key pressed: %s", SDL_GetKeyName(event.key.key));
+                // SDL_Log("Key pressed: %d", event.key.key);
+            }
+            else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+            {
+                if (event.button.button == SDL_BUTTON_LEFT)
+                    SDL_Log("Mouse button pressed: Left");
+                else if (event.button.button == SDL_BUTTON_RIGHT)
+                    SDL_Log("Mouse button pressed: Right");
+                else if (event.button.button == SDL_BUTTON_MIDDLE)
+                    SDL_Log("Mouse button pressed: Middle");
+                else
+                    SDL_Log("Mouse button pressed: %d", event.button.clicks);
+            }
+        }
+
+        if (keys[SDL_SCANCODE_L] == true)
+        {
+            SDL_Log("Key pressed: %s", SDL_GetKeyName(SDLK_ESCAPE));
+        }
+    }
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return EXIT_SUCCESS;
 }
