@@ -1,8 +1,7 @@
 // #define VULKAN_HPP_ENABLE_DYNAMIC_LOADER_TOOL 0
 
 // https://www.youtube.com/watch?v=SpspkiGChww&list=PLvv0ScY6vfd-RZSmGbLkZvkgec6lJ0BfX&index=17
-#include <iostream>
-#include <SDL3/SDL.h>
+
 // #include <SDL3/SDL_vulkan.h>
 // #include <format>
 // #include <vulkan/vulkan.h>
@@ -111,20 +110,42 @@
 //     return 0;
 // }
 
-int main()
+#include <iostream>
+#include <SDL3/SDL.h>
+struct SDLApplication
 {
-    if (!SDL_Init(SDL_INIT_VIDEO))
-    {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Init failed: %s", SDL_GetError());
-        return EXIT_FAILURE;
-    }
-    SDL_Window *window = SDL_CreateWindow("Vulkan Window", 800, 600, SDL_WINDOW_RESIZABLE);
-
+    SDL_Window *window;
+    SDL_Surface *surface;
     bool running = true;
-    const bool *keys = SDL_GetKeyboardState(nullptr);
-
-    while (running)
+    SDLApplication(const char *title)
     {
+        if (!SDL_Init(SDL_INIT_VIDEO))
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Init failed: %s", SDL_GetError());
+        }
+        window = SDL_CreateWindow(title, 800, 600, SDL_WINDOW_RESIZABLE);
+        surface = SDL_LoadBMP("./assets/test.bmp");
+        if (surface == nullptr)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_LoadBMP failed: %s", SDL_GetError());
+        }
+    }
+
+    ~SDLApplication()
+    {
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+    }
+
+    void Tick()
+    {
+        Input();
+        Update();
+        Render();
+    }
+    void Input()
+    {
+        const bool *keys = SDL_GetKeyboardState(nullptr);
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -154,8 +175,60 @@ int main()
         {
             SDL_Log("Key pressed: %s", SDL_GetKeyName(SDLK_ESCAPE));
         }
+
+        float x, y;
+        SDL_MouseButtonFlags state = SDL_GetMouseState(&x, &y);
+        if (state & SDL_BUTTON_LEFT)
+        {
+            SDL_Log("Mouse position: (%f, %f)", x, y);
+        }
     }
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+
+    void Update()
+    {
+        // Update game logic here
+    }
+
+    void Render()
+    {
+        SDL_Surface *windowSurface = SDL_GetWindowSurface(window);
+        if (nullptr != windowSurface)
+        {
+
+            SDL_BlitSurface(surface, nullptr, windowSurface, nullptr);
+            SDL_UpdateWindowSurface(window);
+        }
+    }
+
+    void MainLoop()
+    {
+        Uint64 fps = 0;
+        Uint64 fpsTimer = SDL_GetTicks();
+
+        while (running)
+        {
+            Tick();
+
+            fps++;
+
+            Uint64 now = SDL_GetTicks();
+
+            if (now - fpsTimer >= 1000)
+            {
+                // SDL_Log("FPS: %llu", fps);
+                SDL_SetWindowTitle(window, std::format("Vulkan Window - FPS: {}", fps).c_str());
+
+                fps = 0;
+                fpsTimer = now;
+            }
+        }
+    }
+};
+
+int main()
+{
+
+    SDLApplication app("Vulkan Window");
+    app.MainLoop();
     return EXIT_SUCCESS;
 }
