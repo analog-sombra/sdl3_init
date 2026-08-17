@@ -112,11 +112,42 @@
 
 #include <iostream>
 #include <SDL3/SDL.h>
+
+struct Sprite
+{
+    SDL_Texture *texture;
+
+    Sprite(SDL_Renderer *renderer, const std::string &file_path)
+    {
+        SDL_Surface *surface = SDL_LoadBMP(file_path.c_str());
+        texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_DestroySurface(surface);
+    }
+    ~Sprite()
+    {
+        SDL_DestroyTexture(texture);
+    }
+
+    void Render(SDL_Renderer *renderer)
+    {
+        SDL_FRect dest_rect{
+            .x = 0, .y = 0, .w = 800, .h = 600};
+        SDL_RenderTexture(renderer, texture, nullptr, &dest_rect);
+    }
+};
+
 struct SDLApplication
 {
     SDL_Window *window;
-    SDL_Surface *surface;
+    SDL_Renderer *renderer;
+    // SDL_Surface *surface;
+    int r = 200;
+    int g = 100;
+    int b = 50;
     bool running = true;
+    bool fullscreen = false;
+
+    Sprite *sprite;
     SDLApplication(const char *title)
     {
         if (!SDL_Init(SDL_INIT_VIDEO))
@@ -124,15 +155,35 @@ struct SDLApplication
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Init failed: %s", SDL_GetError());
         }
         window = SDL_CreateWindow(title, 800, 600, SDL_WINDOW_RESIZABLE);
-        surface = SDL_LoadBMP("./assets/test.bmp");
-        if (surface == nullptr)
+        // renderer = SDL_CreateRenderer(window, nullptr);
+        renderer = SDL_CreateRenderer(window, "opengl");
+
+        SDL_SetRenderLogicalPresentation(renderer, 800, 600, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
+        if (window == nullptr)
         {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_LoadBMP failed: %s", SDL_GetError());
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateWindow failed: %s", SDL_GetError());
         }
+
+        SDL_Log(std::format("Renderer: {}", SDL_GetRendererName(renderer)).c_str());
+        for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i)
+        {
+            SDL_Log(std::format("Render Driver {}: {}", i, SDL_GetRenderDriver(i)).c_str());
+        }
+
+        sprite = new Sprite(renderer, "./assets/test.bmp");
+
+        // surface = SDL_LoadBMP("./assets/test.bmp");
+        // if (surface == nullptr)
+        // {
+        //     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_LoadBMP failed: %s", SDL_GetError());
+        // }
     }
 
     ~SDLApplication()
     {
+        delete sprite;
+        SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
     }
@@ -157,6 +208,20 @@ struct SDLApplication
             {
                 SDL_Log("Key pressed: %s", SDL_GetKeyName(event.key.key));
                 // SDL_Log("Key pressed: %d", event.key.key);
+
+                if (event.key.key == SDLK_1)
+                    r = 150, b = 50, g = 50;
+                if (event.key.key == SDLK_2)
+                    r = 50, b = 150, g = 50;
+                if (event.key.key == SDLK_3)
+                    r = 50, b = 50, g = 150;
+                if (event.key.key == SDLK_0)
+                    r = 200, b = 100, g = 50;
+                if (event.key.key == SDLK_F11)
+                {
+                    SDL_SetWindowFullscreen(window, fullscreen);
+                    fullscreen = !fullscreen;
+                }
             }
             else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
             {
@@ -191,13 +256,20 @@ struct SDLApplication
 
     void Render()
     {
-        SDL_Surface *windowSurface = SDL_GetWindowSurface(window);
-        if (nullptr != windowSurface)
-        {
+        SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+        SDL_RenderClear(renderer);
+        sprite->Render(renderer);
 
-            SDL_BlitSurface(surface, nullptr, windowSurface, nullptr);
-            SDL_UpdateWindowSurface(window);
-        }
+        SDL_RenderPresent(renderer);
+
+
+        // SDL_Surface *windowSurface = SDL_GetWindowSurface(window);
+        // if (nullptr != windowSurface)
+        // {
+
+        //     SDL_BlitSurface(surface, nullptr, windowSurface, nullptr);
+        //     SDL_UpdateWindowSurface(window);
+        // }
     }
 
     void MainLoop()
