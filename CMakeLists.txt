@@ -11,8 +11,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Package Dependencies
-find_package(Vulkan REQUIRED COMPONENTS volk shaderc_combined)
 find_package(SDL3 CONFIG REQUIRED)
+find_package(SDL3_ttf CONFIG REQUIRED)
 
 # Include Directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -34,10 +34,8 @@ if(MSVC)
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    Vulkan::Vulkan
-    Vulkan::volk
-    Vulkan::shaderc_combined
     SDL3::SDL3
+    SDL3_ttf::SDL3_ttf
 )
 
 # copy assets folder to build directory after build
