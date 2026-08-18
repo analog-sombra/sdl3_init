@@ -14,9 +14,31 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(SDL3 CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
 find_package(entt CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+
+# Download ImGui backends from GitHub if not present
+set(IMGUI_BACKENDS_DIR "${CMAKE_SOURCE_DIR}/imgui_backends")
+if(NOT EXISTS "${IMGUI_BACKENDS_DIR}")
+    file(MAKE_DIRECTORY "${IMGUI_BACKENDS_DIR}")
+    
+    set(BACKENDS 
+        "imgui_impl_sdl3.cpp"
+        "imgui_impl_sdl3.h"
+        "imgui_impl_sdlrenderer3.cpp"
+        "imgui_impl_sdlrenderer3.h"
+    )
+    
+    foreach(BACKEND ${BACKENDS})
+        file(DOWNLOAD 
+            "https://raw.githubusercontent.com/ocornut/imgui/master/backends/${BACKEND}"
+            "${IMGUI_BACKENDS_DIR}/${BACKEND}"
+        )
+    endforeach()
+endif()
 
 # Include Directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${IMGUI_BACKENDS_DIR})
 
 # Source Files
 file(GLOB_RECURSE USER_SOURCES CONFIGURE_DEPENDS
@@ -27,6 +49,8 @@ file(GLOB_RECURSE USER_SOURCES CONFIGURE_DEPENDS
 add_executable(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/main.cpp
     ${USER_SOURCES}
+    ${IMGUI_BACKENDS_DIR}/imgui_impl_sdl3.cpp
+    ${IMGUI_BACKENDS_DIR}/imgui_impl_sdlrenderer3.cpp
 )
 
 # Compiler Options
@@ -37,6 +61,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE
     SDL3::SDL3
     SDL3_ttf::SDL3_ttf
+    imgui::imgui
 )
 
 # copy assets folder to build directory after build

@@ -1,9 +1,10 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <entt/entt.hpp>
 #include "customtext.hpp"
 #include "sprite.hpp"
-#include <entt/entt.hpp>
+#include "basicimgui.hpp"
 
 struct SDLApplication
 {
@@ -19,6 +20,7 @@ struct SDLApplication
 
     CustomText *text;
     entt::registry registry;
+    BasicImgui *imgui;
 
     SDLApplication(const char *title)
     {
@@ -30,7 +32,8 @@ struct SDLApplication
         renderer = SDL_CreateRenderer(window, nullptr);
         // renderer = SDL_CreateRenderer(window, "vulkan");
 
-        SDL_SetRenderLogicalPresentation(renderer, 800, 600, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+        // Removed letterbox mode to fix ImGui mouse coordinate mismatch on resize
+        // SDL_SetRenderLogicalPresentation(renderer, 800, 600, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
         if (window == nullptr)
         {
@@ -50,10 +53,15 @@ struct SDLApplication
         CreateText(renderer, registry, "Hello SDL3!");
 
         CreateSprite(renderer, registry);
+
+        imgui = new BasicImgui(window, renderer);
     }
 
     ~SDLApplication()
     {
+        if (imgui)
+            delete imgui;
+
         TTF_Quit();
         DestroyText(registry);
         DestroySprites(registry);
@@ -74,6 +82,9 @@ struct SDLApplication
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
+            // Pass event to ImGui
+            imgui->ProcessEvent(&event);
+
             if (event.type == SDL_EVENT_QUIT)
             {
                 running = false;
@@ -130,6 +141,9 @@ struct SDLApplication
 
     void Render()
     {
+        // Start ImGui frame
+        imgui->NewFrame();
+
         SDL_SetRenderDrawColor(renderer, r, g, b, 255);
         SDL_RenderClear(renderer);
 
@@ -138,6 +152,8 @@ struct SDLApplication
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderDebugText(renderer, 10, 10, "Hello SDL3!");
         RenderText(renderer, registry);
+
+        imgui->Render(renderer);
 
         SDL_RenderPresent(renderer);
     }
