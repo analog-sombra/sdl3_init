@@ -1,21 +1,6 @@
 
 #include "customtext.hpp"
 
-// CustomText::CustomText(SDL_Renderer *renderer, const std::string &text)
-// {
-
-//     font = TTF_OpenFont("./assets/font/candy.otf", 24.f);
-//     if (font == nullptr)
-//     {
-//         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_OpenFont failed: %s", SDL_GetError());
-//     }
-//     TTF_SetFontSize(font, 400);
-//     TTF_SetFontOutline(font, 10);
-//     textSurface = TTF_RenderText_Blended(font, text.c_str(), 0, SDL_Color{255, 255, 255, 255});
-//     textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-//     SDL_DestroySurface(textSurface);
-// }
-
 void CreateText(SDL_Renderer *renderer, entt::registry &registry, const std::string &text)
 {
     auto entity = registry.create();
@@ -25,8 +10,8 @@ void CreateText(SDL_Renderer *renderer, entt::registry &registry, const std::str
     {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_OpenFont failed: %s", SDL_GetError());
     }
-    // TTF_SetFontSize(font, 80);
-    // TTF_SetFontOutline(font, 10);
+    // TTF_SetFontSize(font, 200);
+    // TTF_SetFontOutline(font, 1);
     SDL_Surface *textSurface = TTF_RenderText_Blended(font, text.c_str(), 0, SDL_Color{255, 255, 255, 255});
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
