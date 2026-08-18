@@ -1,61 +1,10 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-struct Sprite
-{
-    SDL_Texture *texture;
+#include "customtext.hpp"
+#include "sprite.hpp"
+#include <entt/entt.hpp>
 
-    Sprite(SDL_Renderer *renderer, const std::string &file_path)
-    {
-        SDL_Surface *surface = SDL_LoadBMP(file_path.c_str());
-        texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_DestroySurface(surface);
-    }
-    ~Sprite()
-    {
-        SDL_DestroyTexture(texture);
-    }
-
-    void Render(SDL_Renderer *renderer)
-    {
-        SDL_FRect dest_rect{
-            .x = 0, .y = 0, .w = 800, .h = 600};
-        SDL_RenderTexture(renderer, texture, nullptr, &dest_rect);
-    }
-};
-
-struct CustomText
-{
-    TTF_Font *font;
-    SDL_Texture *textTexture;
-    SDL_Surface *textSurface;
-    CustomText(SDL_Renderer *renderer, std::string text)
-    {
-        if (!TTF_Init())
-        {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_Init failed: %s", SDL_GetError());
-        }
-        font = TTF_OpenFont("./assets/candy.otf", 24.f);
-        if (font == nullptr)
-        {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_OpenFont failed: %s", SDL_GetError());
-        }
-        TTF_SetFontSize(font, 400);
-        TTF_SetFontOutline(font, 10);
-        textSurface = TTF_RenderText_Blended(font, text.c_str(), 0, SDL_Color{255, 255, 255, 255});
-        textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    }
-
-    ~CustomText()
-    {
-        SDL_DestroySurface(textSurface);
-    }
-    void Render(SDL_Renderer *renderer)
-    {
-        SDL_FRect textRect = SDL_FRect{10, 50, 200, 50};
-        SDL_RenderTexture(renderer, textTexture, nullptr, &textRect);
-    }
-};
 struct SDLApplication
 {
     SDL_Window *window;
@@ -68,8 +17,9 @@ struct SDLApplication
     bool running = true;
     bool fullscreen = false;
 
-    Sprite *sprite;
     CustomText *text;
+    entt::registry registry;
+
     SDLApplication(const char *title)
     {
         if (!SDL_Init(SDL_INIT_VIDEO))
@@ -92,21 +42,21 @@ struct SDLApplication
         {
             SDL_Log(std::format("Render Driver {}: {}", i, SDL_GetRenderDriver(i)).c_str());
         }
+        if (!TTF_Init())
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_Init failed: %s", SDL_GetError());
+        }
 
-        sprite = new Sprite(renderer, "./assets/test.bmp");
-        text = new CustomText(renderer, "Hello SDL3");
+        CreateText(renderer, registry, "Hello SDL3!");
 
-        // surface = SDL_LoadBMP("./assets/test.bmp");
-        // if (surface == nullptr)
-        // {
-        //     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_LoadBMP failed: %s", SDL_GetError());
-        // }
+        CreateSprite(renderer, registry);
     }
 
     ~SDLApplication()
     {
         TTF_Quit();
-        delete sprite;
+        DestroyText(registry);
+        DestroySprites(registry);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
@@ -182,22 +132,14 @@ struct SDLApplication
     {
         SDL_SetRenderDrawColor(renderer, r, g, b, 255);
         SDL_RenderClear(renderer);
-        sprite->Render(renderer);
+
+        RenderSprites(renderer, registry);
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-        SDL_RenderDebugText(renderer, 10, 10, "Hello SDL2!");
-        text->Render(renderer);
+        SDL_RenderDebugText(renderer, 10, 10, "Hello SDL3!");
+        RenderText(renderer, registry);
 
         SDL_RenderPresent(renderer);
-
-        // SDL_Surface *windowSurface = SDL_GetWindowSurface(window);
-        // if (nullptr != windowSurface)
-        // {
-
-        //     SDL_BlitSurface(surface, nullptr, windowSurface, nullptr);
-        //     SDL_UpdateWindowSurface(window);
-        // }
     }
 
     void MainLoop()

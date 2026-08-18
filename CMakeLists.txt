@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Package Dependencies
 find_package(SDL3 CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
+find_package(entt CONFIG REQUIRED)
 
 # Include Directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
