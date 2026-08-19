@@ -2,18 +2,28 @@
 
 void CreateSprite(SDL_Renderer *renderer, entt::registry &registry)
 {
-    for (int i = 0; i < 10; i++)
-    {
-        auto entity = registry.create();
+    auto entity = registry.create();
+    SDL_Surface *surface = SDL_LoadBMP("./assets/test.bmp");
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    registry.emplace<Transform>(
+        entity,
+        SDL_FRect{0.0f, 0.0f, 50, 50},
+        texture);
+    registry.emplace<Player>(entity);
+    SDL_DestroySurface(surface);
 
-        SDL_Surface *surface = SDL_LoadBMP("./assets/test.bmp");
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-        registry.emplace<Transform>(
-            entity,
-            SDL_FRect{50.0f + i * 70.0f, 50.0f, 50, 50},
-            texture);
-        SDL_DestroySurface(surface);
-    }
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     auto entity = registry.create();
+
+    //     SDL_Surface *surface = SDL_LoadBMP("./assets/test.bmp");
+    //     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    //     registry.emplace<Transform>(
+    //         entity,
+    //         SDL_FRect{50.0f + i * 70.0f, 50.0f, 50, 50},
+    //         texture);
+    //     SDL_DestroySurface(surface);
+    // }
 }
 
 void RenderSprites(SDL_Renderer *renderer, entt::registry &registry)

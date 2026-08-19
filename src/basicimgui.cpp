@@ -3,12 +3,18 @@
 BasicImgui::BasicImgui(SDL_Window *window, SDL_Renderer *renderer)
     : window(window), renderer(renderer), show_dialog(true)
 {
+
     // Initialize ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
+    
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    
     ImGui::StyleColorsDark();
-
     // Setup ImGui backends for SDL3 and SDL Renderer
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer3_Init(renderer);
@@ -55,8 +61,45 @@ void BasicImgui::NewFrame()
     ImGui::NewFrame();
 }
 
-void BasicImgui::Render(SDL_Renderer *renderer)
+void BasicImgui::Render(SDL_Renderer *renderer, entt::registry &registry)
 {
+
+    static int x = 0, y = 0;
+
+    auto playerView = registry.view<Transform, Player>();
+
+    // for (auto entity : player)
+    // {
+    //     auto &transform = player.get<Transform>(entity);
+    //     x = (int)transform.rect.x;
+    //     y = (int)transform.rect.y;
+    // }
+
+    ImGui::Begin("Hello");
+
+    ImGui::Text("Position");
+    ImGui::Text("X: ");
+    ImGui::SameLine();
+    if (ImGui::SliderInt("X", &x, 0, WINDOW_WIDTH))
+    {
+        for (auto entity : playerView)
+        {
+            auto &transform = playerView.get<Transform>(entity);
+            transform.rect.x = x;
+        }
+    }
+    ImGui::Text("Y: ");
+    ImGui::SameLine();
+    if (ImGui::SliderInt("Y", &y, 0, WINDOW_HEIGHT))
+    {
+        for (auto entity : playerView)
+        {
+            auto &transform = playerView.get<Transform>(entity);
+            transform.rect.y = y;
+        }
+    }
+    ImGui::End();
+
     ImGui::SetNextWindowPos(ImVec2(100, 100), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 250), ImGuiCond_FirstUseEver);
     // Create a basic dialog box
@@ -90,6 +133,12 @@ void BasicImgui::Render(SDL_Renderer *renderer)
     // Rendering
     ImGui::Render();
 
-    // Render ImGui
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+
+    // Handle multi-viewport rendering
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+    }
 }

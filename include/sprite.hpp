@@ -10,6 +10,8 @@ struct Transform
     SDL_Texture *texture;
 };
 
+struct Player{};
+
 void CreateSprite(SDL_Renderer *renderer, entt::registry &registry);
 void RenderSprites(SDL_Renderer *renderer, entt::registry &registry);
 void DestroySprites(entt::registry &registry);

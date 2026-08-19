@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <entt/entt.hpp>
+#include "const.hpp"
 #include "customtext.hpp"
 #include "sprite.hpp"
 #include "basicimgui.hpp"
@@ -28,12 +29,12 @@ struct SDLApplication
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Init failed: %s", SDL_GetError());
         }
-        window = SDL_CreateWindow(title, 800, 600, SDL_WINDOW_RESIZABLE);
+        window = SDL_CreateWindow(title, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
         renderer = SDL_CreateRenderer(window, nullptr);
         // renderer = SDL_CreateRenderer(window, "vulkan");
 
         // Removed letterbox mode to fix ImGui mouse coordinate mismatch on resize
-        // SDL_SetRenderLogicalPresentation(renderer, 800, 600, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+        // SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
         if (window == nullptr)
         {
@@ -128,10 +129,10 @@ struct SDLApplication
 
         float x, y;
         SDL_MouseButtonFlags state = SDL_GetMouseState(&x, &y);
-        if (state & SDL_BUTTON_LEFT)
-        {
-            SDL_Log("Mouse position: (%f, %f)", x, y);
-        }
+        // if (state & SDL_BUTTON_LEFT)
+        // {
+        //     SDL_Log("Mouse position: (%f, %f)", x, y);
+        // }
     }
 
     void Update()
@@ -153,7 +154,7 @@ struct SDLApplication
         SDL_RenderDebugText(renderer, 10, 10, "Hello SDL3!");
         RenderText(renderer, registry);
 
-        imgui->Render(renderer);
+        imgui->Render(renderer, registry);
 
         SDL_RenderPresent(renderer);
     }
