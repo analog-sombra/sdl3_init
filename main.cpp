@@ -1,16 +1,18 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <entt/entt.hpp>
 #include "const.hpp"
 #include "customtext.hpp"
 #include "sprite.hpp"
 #include "basicimgui.hpp"
+#include <flecs.h>
 
 struct SDLApplication
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
+    flecs::world world;
+    // entt::registry registry;
 
     // SDL_Surface *surface;
     int r = 200;
@@ -20,8 +22,9 @@ struct SDLApplication
     bool fullscreen = false;
 
     CustomText *text;
-    entt::registry registry;
     BasicImgui *imgui;
+
+    b2WorldId physicsWorld;
 
     SDLApplication(const char *title)
     {
@@ -51,11 +54,67 @@ struct SDLApplication
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_Init failed: %s", SDL_GetError());
         }
 
-        CreateText(renderer, registry, "Hello SDL3!");
-
-        CreateSprite(renderer, registry);
+        CreateText(renderer, world, "Hello SDL3!");
 
         imgui = new BasicImgui(window, renderer);
+
+        // box2d world initialization
+        b2WorldDef worldDef = b2DefaultWorldDef();
+        worldDef.gravity = {0.0f, 9.8f};
+        physicsWorld = b2CreateWorld(&worldDef);
+
+        // ground start - full width ground at bottom of screen
+        b2BodyDef groundBodyDef = b2DefaultBodyDef();
+
+        groundBodyDef.position = {
+            PixelsToMeters(WINDOW_WIDTH / 4.0f),
+            PixelsToMeters(WINDOW_HEIGHT - 30.0f / 2.0f)};
+
+        b2BodyId groundBody = b2CreateBody(
+            physicsWorld,
+            &groundBodyDef);
+
+        b2Polygon groundBox = b2MakeBox(
+            PixelsToMeters(WINDOW_WIDTH / 2.0f),
+            PixelsToMeters(30.0f / 2.0f));
+
+        b2ShapeDef groundShapeDef = b2DefaultShapeDef();
+
+        b2CreatePolygonShape(
+            groundBody,
+            &groundShapeDef,
+            &groundBox);
+
+        // player start
+        b2BodyDef playerBodyDef = b2DefaultBodyDef();
+
+        playerBodyDef.type = b2_dynamicBody;
+
+        playerBodyDef.position = {
+            PixelsToMeters(WINDOW_WIDTH / 2.0f),
+            PixelsToMeters(WINDOW_HEIGHT / 2.0f)};
+
+        b2BodyId playerBody = b2CreateBody(
+            physicsWorld,
+            &playerBodyDef);
+
+        // give shape to player body
+        b2Polygon playerBox = b2MakeBox(
+            PixelsToMeters(32.0f),
+            PixelsToMeters(50.0f));
+
+        b2ShapeDef playerShapeDef = b2DefaultShapeDef();
+
+        playerShapeDef.density = 1.0f;
+        playerShapeDef.material.friction = 0.5f;
+
+        b2CreatePolygonShape(
+            playerBody,
+            &playerShapeDef,
+            &playerBox);
+
+        CreateSprite(renderer, world, "../../assets/images/player.png", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true, playerBody);
+        CreateSprite(renderer, world, "../../assets/images/ground.png", WINDOW_WIDTH / 4, WINDOW_HEIGHT - 30, false, groundBody);
     }
 
     ~SDLApplication()
@@ -64,8 +123,8 @@ struct SDLApplication
             delete imgui;
 
         TTF_Quit();
-        DestroyText(registry);
-        DestroySprites(registry);
+        DestroyText(world);
+        DestroySprites(world);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
@@ -142,19 +201,31 @@ struct SDLApplication
 
     void Render()
     {
+
+        b2World_Step(
+            physicsWorld,
+            1.0f / 60.0f,
+            4);
+
+        // --------------------------------
+        // Sync physics -> ECS
+        // --------------------------------
+
+        SyncPhysicsToTransform(world);
+
         // Start ImGui frame
         imgui->NewFrame();
 
         SDL_SetRenderDrawColor(renderer, r, g, b, 255);
         SDL_RenderClear(renderer);
 
-        RenderSprites(renderer, registry);
+        RenderSprites(renderer, world);
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderDebugText(renderer, 10, 10, "Hello SDL3!");
-        RenderText(renderer, registry);
+        RenderText(renderer, world);
 
-        imgui->Render(renderer, registry);
+        imgui->Render(renderer, world);
 
         SDL_RenderPresent(renderer);
     }

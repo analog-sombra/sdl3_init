@@ -8,12 +8,12 @@ BasicImgui::BasicImgui(SDL_Window *window, SDL_Renderer *renderer)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    
+
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-    
+
     ImGui::StyleColorsDark();
     // Setup ImGui backends for SDL3 and SDL Renderer
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
@@ -61,19 +61,9 @@ void BasicImgui::NewFrame()
     ImGui::NewFrame();
 }
 
-void BasicImgui::Render(SDL_Renderer *renderer, entt::registry &registry)
+void BasicImgui::Render(SDL_Renderer *renderer, flecs::world &world)
 {
-
-    static int x = 0, y = 0;
-
-    auto playerView = registry.view<Transform, Player>();
-
-    // for (auto entity : player)
-    // {
-    //     auto &transform = player.get<Transform>(entity);
-    //     x = (int)transform.rect.x;
-    //     y = (int)transform.rect.y;
-    // }
+    auto playerView = world.query_builder<Transform, Player>().build();
 
     ImGui::Begin("Hello");
 
@@ -82,53 +72,48 @@ void BasicImgui::Render(SDL_Renderer *renderer, entt::registry &registry)
     ImGui::SameLine();
     if (ImGui::SliderInt("X", &x, 0, WINDOW_WIDTH))
     {
-        for (auto entity : playerView)
-        {
-            auto &transform = playerView.get<Transform>(entity);
-            transform.rect.x = x;
-        }
+
+        playerView.each([this](flecs::entity e, Transform &transform, const Player &player)
+                        { transform.rect.x = this->x; });
     }
     ImGui::Text("Y: ");
     ImGui::SameLine();
     if (ImGui::SliderInt("Y", &y, 0, WINDOW_HEIGHT))
     {
-        for (auto entity : playerView)
-        {
-            auto &transform = playerView.get<Transform>(entity);
-            transform.rect.y = y;
-        }
+        playerView.each([this](flecs::entity e, Transform &transform, const Player &player)
+                        { transform.rect.y = this->y; });
     }
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(100, 100), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 250), ImGuiCond_FirstUseEver);
     // Create a basic dialog box
-    if (show_dialog)
-    {
+    // if (show_dialog)
+    // {
 
-        if (ImGui::Begin("Hello ImGui", &show_dialog))
-        {
-            ImGui::Text("This is a basic ImGui dialog box!");
-            ImGui::Separator();
+    //     if (ImGui::Begin("Hello ImGui", &show_dialog))
+    //     {
+    //         ImGui::Text("This is a basic ImGui dialog box!");
+    //         ImGui::Separator();
 
-            ImGui::Text("You can click this button:");
-            if (ImGui::Button("Click Me!", ImVec2(120, 0)))
-            {
-                SDL_Log("Button clicked!");
-            }
+    //         ImGui::Text("You can click this button:");
+    //         if (ImGui::Button("Click Me!", ImVec2(120, 0)))
+    //         {
+    //             SDL_Log("Button clicked!");
+    //         }
 
-            ImGui::SameLine();
-            if (ImGui::Button("Close Dialog", ImVec2(120, 0)))
-            {
-                show_dialog = false;
-            }
+    //         ImGui::SameLine();
+    //         if (ImGui::Button("Close Dialog", ImVec2(120, 0)))
+    //         {
+    //             show_dialog = false;
+    //         }
 
-            ImGui::Separator();
-            ImGui::Text("Background Color");
+    //         ImGui::Separator();
+    //         ImGui::Text("Background Color");
 
-            ImGui::End();
-        }
-    }
+    //         ImGui::End();
+    //     }
+    // }
 
     // Rendering
     ImGui::Render();

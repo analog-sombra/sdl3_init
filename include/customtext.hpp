@@ -4,7 +4,8 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <entt/entt.hpp>
+#include <flecs.h>
+
 
 struct CustomText
 {
@@ -13,8 +14,8 @@ struct CustomText
     SDL_FRect rect;
 };
 
-void CreateText(SDL_Renderer *renderer, entt::registry &registry, const std::string &text);
-void RenderText(SDL_Renderer *renderer, entt::registry &registry);
-void DestroyText(entt::registry &registry);
+void CreateText(SDL_Renderer *renderer, flecs::world &world, const std::string &text);
+void RenderText(SDL_Renderer *renderer, flecs::world &world);
+void DestroyText(flecs::world &world);
 
 #endif // __CUSTOMTEXT_HPP__

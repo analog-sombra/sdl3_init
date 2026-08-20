@@ -13,8 +13,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Package Dependencies
 find_package(SDL3 CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
-find_package(entt CONFIG REQUIRED)
+find_package(SDL3_image CONFIG REQUIRED)
+find_package(flecs CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
+find_package(box2d CONFIG REQUIRED)
 
 
 
@@ -41,7 +43,10 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE
     SDL3::SDL3
     SDL3_ttf::SDL3_ttf
+    SDL3_image::SDL3_image
     imgui::imgui
+    flecs::flecs
+    box2d::box2d
 )
 
 # copy assets folder to build directory after build

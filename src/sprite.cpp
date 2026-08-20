@@ -1,38 +1,27 @@
 #include "sprite.hpp"
 
-void CreateSprite(SDL_Renderer *renderer, entt::registry &registry)
+
+
+void CreateSprite(SDL_Renderer *renderer, flecs::world &world, std::string path, float x, float y, bool isPlayer, b2BodyId bodyId)
 {
-    auto entity = registry.create();
-    SDL_Surface *surface = SDL_LoadBMP("./assets/test.bmp");
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    registry.emplace<Transform>(
-        entity,
-        SDL_FRect{0.0f, 0.0f, 50, 50},
-        texture);
-    registry.emplace<Player>(entity);
-    SDL_DestroySurface(surface);
+    auto entity = world.entity();
+    // SDL_Surface *surface = SDL_LoadBMP("./assets/test.bmp");
+    // SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Texture *texture = IMG_LoadTexture(renderer, path.c_str());
 
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     auto entity = registry.create();
-
-    //     SDL_Surface *surface = SDL_LoadBMP("./assets/test.bmp");
-    //     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    //     registry.emplace<Transform>(
-    //         entity,
-    //         SDL_FRect{50.0f + i * 70.0f, 50.0f, 50, 50},
-    //         texture);
-    //     SDL_DestroySurface(surface);
-    // }
+    entity.set<Transform>({SDL_FRect{x, y, static_cast<float>(texture->w), static_cast<float>(texture->h)}, texture});
+    entity.set<PhysicsBody>({bodyId}); // Initialize with the provided body ID
+    if (isPlayer)
+        entity.add<Player>();
+    // SDL_DestroySurface(surface);
 }
 
-void RenderSprites(SDL_Renderer *renderer, entt::registry &registry)
+void RenderSprites(SDL_Renderer *renderer, flecs::world &world)
 {
-    auto view = registry.view<Transform>();
+    auto q = world.query_builder<Transform>().build();
 
-    for (auto entity : view)
-    {
-        auto &transform = view.get<Transform>(entity);
+    q.each([renderer](flecs::entity e, Transform &transform)
+           {
 
         SDL_FRect rect{
             transform.rect.x,
@@ -40,19 +29,36 @@ void RenderSprites(SDL_Renderer *renderer, entt::registry &registry)
             transform.rect.w,
             transform.rect.h};
 
-        SDL_RenderTexture(renderer, transform.texture, nullptr, &rect);
-    }
+        SDL_RenderTexture(renderer, transform.texture, nullptr, &rect); });
 }
 
-void DestroySprites(entt::registry &registry)
+void DestroySprites(flecs::world &world)
 {
-    auto view = registry.view<Transform>();
+    // auto view = registry.view<Transform>();
+    auto q = world.query_builder<Transform>().build();
 
-    for (auto entity : view)
-    {
-        auto &transform = view.get<Transform>(entity);
-        if (transform.texture)
-            SDL_DestroyTexture(transform.texture);
-    }
-    registry.clear<Transform>();
+    q.each([](flecs::entity e, Transform &transform)
+           {
+        if (transform.texture) SDL_DestroyTexture(transform.texture); });
+}
+
+void SyncPhysicsToTransform(flecs::world &world)
+{
+    auto query =
+        world.query<Transform, PhysicsBody>();
+
+    query.each([](
+                   Transform &transform,
+                   PhysicsBody &physics)
+               {
+        b2Vec2 position =
+            b2Body_GetPosition(physics.bodyId);
+
+        transform.rect.x =
+            MetersToPixels(position.x) -
+            transform.rect.w / 2.0f;
+
+        transform.rect.y =
+            MetersToPixels(position.y) -
+            transform.rect.h / 2.0f; });
 }
