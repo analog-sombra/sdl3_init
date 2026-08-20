@@ -67,7 +67,7 @@ struct SDLApplication
         b2BodyDef groundBodyDef = b2DefaultBodyDef();
 
         groundBodyDef.position = {
-            PixelsToMeters(WINDOW_WIDTH / 4.0f),
+            PixelsToMeters(WINDOW_WIDTH / 2.0f),
             PixelsToMeters(WINDOW_HEIGHT - 30.0f / 2.0f)};
 
         b2BodyId groundBody = b2CreateBody(
@@ -114,7 +114,7 @@ struct SDLApplication
             &playerBox);
 
         CreateSprite(renderer, world, "../../assets/images/player.png", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true, playerBody);
-        CreateSprite(renderer, world, "../../assets/images/ground.png", WINDOW_WIDTH / 4, WINDOW_HEIGHT - 30, false, groundBody);
+        CreateSprite(renderer, world, "../../assets/images/ground.png", WINDOW_WIDTH / 2, WINDOW_HEIGHT - 30, false, groundBody);
     }
 
     ~SDLApplication()
