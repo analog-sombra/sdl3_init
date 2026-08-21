@@ -17,8 +17,7 @@ find_package(SDL3_image CONFIG REQUIRED)
 find_package(flecs CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(box2d CONFIG REQUIRED)
-
-
+find_package(fmt CONFIG REQUIRED)
 
 # Include Directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -47,7 +46,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     imgui::imgui
     flecs::flecs
     box2d::box2d
+    fmt::fmt
 )
+
+# On Windows, explicitly link opengl32
+if(MSVC)
+    target_link_libraries(${PROJECT_NAME} PRIVATE)
+endif()
 
 # copy assets folder to build directory after build
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
