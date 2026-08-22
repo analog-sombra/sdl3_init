@@ -21,7 +21,7 @@ struct SDLApplication
     bool running = true;
     bool fullscreen = false;
 
-    CustomText *text;
+    TextElement *text;
     BasicImgui *imgui;
 
     b2WorldId physicsWorld;

@@ -36,20 +36,23 @@ Engine::Engine(std::string title)
 
     // Initialize AssetsManager
     assetsManager = new AssetsManager(renderer);
-    assetsManager->LoadFont("ui_default", "./assets/font/candy.otf", 24);
-    assetsManager->LoadTexture("player_idle", "./assets/images/player.png");
+
+    testSeane = new TestSeane(assetsManager, renderer);
 }
+
 Engine::~Engine()
 {
+    // Clean up EngineDebug
+    delete engineDebug;
+    // Clean up AssetsManager
+    delete assetsManager;
+
     if (renderer)
         SDL_DestroyRenderer(renderer);
     if (window)
         SDL_DestroyWindow(window);
     TTF_Quit();
-    // Clean up EngineDebug
-    delete engineDebug;
-    // Clean up AssetsManager
-    delete assetsManager;
+
     // Quit SDL
     SDL_Quit();
 }
@@ -87,21 +90,31 @@ void Engine::Render()
     engineDebug->NewFrame();
     engineDebug->Render(renderer);
     SDL_RenderDebugText(renderer, 10, 10, "Hello SDL3!");
+    testSeane->Render();
 
     SDL_RenderPresent(renderer);
 }
+
 void Engine::Update()
 {
+    testSeane->Update();
 }
+
 void Engine::HandleEvents()
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
         engineDebug->ProcessEvent(&event);
+        testSeane->HandleEvents(&event);
         if (event.type == SDL_EVENT_QUIT)
         {
             running = false;
+        }
+        if (event.key.key == SDLK_F11)
+        {
+            SDL_SetWindowFullscreen(window, fullscreen);
+            fullscreen = !fullscreen;
         }
     }
 }

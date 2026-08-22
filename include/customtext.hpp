@@ -7,7 +7,7 @@
 #include <flecs.h>
 
 
-struct CustomText
+struct TextElement
 {
     TTF_Font *font;
     SDL_Texture *texture;

@@ -5,17 +5,24 @@
 #include "const.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <flecs.h>
+#include "game/testseane.hpp"
 #include "engine/debug/engine_debug.hpp"
 #include "engine/assets_manager.hpp"
+#include "engine/element/text_element.hpp"
+#include "engine/element/image_element.hpp"
 
 class Engine
 {
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
-    bool running = true;
     EngineDebug *engineDebug;
     AssetsManager *assetsManager;
+    bool running = true;
+    bool fullscreen = false;
+    TestSeane *testSeane;
 
 public:
     Engine(std::string title);

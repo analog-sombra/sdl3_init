@@ -15,7 +15,7 @@ void CreateText(SDL_Renderer *renderer, flecs::world &world, const std::string &
     SDL_Surface *textSurface = TTF_RenderText_Blended(font, text.c_str(), 0, SDL_Color{255, 255, 255, 255});
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    entity.set<CustomText>(
+    entity.set<TextElement>(
         {font,
          textTexture,
          SDL_FRect{10.f, 50.f, 200.f, 50.f}});
@@ -24,28 +24,28 @@ void CreateText(SDL_Renderer *renderer, flecs::world &world, const std::string &
 
 void RenderText(SDL_Renderer *renderer, flecs::world &world)
 {
-    // auto view = registry.view<CustomText>();
-    auto q = world.query_builder<CustomText>().build();
+    // auto view = registry.view<TextElement>();
+    auto q = world.query_builder<TextElement>().build();
 
 
-    q.each([renderer](flecs::entity e, CustomText &customtext)
+    q.each([renderer](flecs::entity e, TextElement &textelement)
     {
         SDL_FRect rect{
-            customtext.rect.x,
-            customtext.rect.y,
-            customtext.rect.w,
-            customtext.rect.h};
+            textelement.rect.x,
+            textelement.rect.y,
+            textelement.rect.w,
+            textelement.rect.h};
 
-        SDL_RenderTexture(renderer, customtext.texture, nullptr, &rect);
+        SDL_RenderTexture(renderer, textelement.texture, nullptr, &rect);
     });
 }
 
 void DestroyText(flecs::world &world)
 {
 
-    auto q = world.query_builder<CustomText>().build();
+    auto q = world.query_builder<TextElement>().build();
 
-    q.each([](flecs::entity e, CustomText &text)
+    q.each([](flecs::entity e, TextElement &text)
            {
         if (text.texture) SDL_DestroyTexture(text.texture);
         if (text.font)    TTF_CloseFont(text.font); });
