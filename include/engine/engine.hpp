@@ -10,6 +10,7 @@
 #include "game/testseane.hpp"
 #include "engine/debug/engine_debug.hpp"
 #include "engine/assets_manager.hpp"
+#include "engine/seane/seane_manager.hpp"
 #include "engine/element/text_element.hpp"
 #include "engine/element/image_element.hpp"
 
@@ -20,9 +21,9 @@ private:
     SDL_Renderer *renderer;
     EngineDebug *engineDebug;
     AssetsManager *assetsManager;
+    SeaneManager *seaneManager;
     bool running = true;
     bool fullscreen = false;
-    TestSeane *testSeane;
 
 public:
     Engine(std::string title);
@@ -32,6 +33,9 @@ public:
     void Render();
     void Update();
     void HandleEvents();
+    
+    // Seane management
+    SeaneManager *GetSeaneManager() const;
 
     // driver fuctions
     void GetAllRenderDrivers();

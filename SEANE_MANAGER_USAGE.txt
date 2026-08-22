@@ -1,0 +1,128 @@
+// SeaneManager Usage Examples
+// ============================
+
+// Example 1: Adding seanes to the manager
+Engine* engine = new Engine("My Game");
+SeaneManager* manager = engine->GetSeaneManager();
+
+// Create and add seanes
+auto gameSeane = std::make_unique<GameSeane>(assetsManager, renderer);
+auto pauseSeane = std::make_unique<PauseSeane>(assetsManager, renderer);
+manager->AddSeane("Game", std::move(gameSeane));
+manager->AddSeane("Pause", std::move(pauseSeane));
+
+// Example 2: LAYERED RENDERING - Pause Menu on top of Gameplay
+// Set Game seane as current
+manager->SetCurrentSeane("Game");
+
+// Player presses pause
+manager->PushSeane("Pause");
+
+// NOW both seanes render!
+// manager->Render() will render:
+//   1. Game seane (bottom layer)
+//   2. Pause seane (top layer)
+// This creates the pause menu overlay effect!
+
+// Example 3: Return to game when player unpauses
+manager->PopSeane();
+// Now only Game seane renders
+
+// Example 4: Get all registered seanes
+std::vector<std::string> allSeanes = manager->GetAllSeanes();
+for (const auto& name : allSeanes) {
+    SDL_Log("Available seane: %s", name.c_str());
+}
+
+// Example 5: Get all seanes currently in the rendering stack
+std::vector<std::string> stackSeanes = manager->GetAllStackSeanes();
+for (const auto& name : stackSeanes) {
+    SDL_Log("Rendering seane: %s", name.c_str());
+}
+
+// Example 6: Peek at top seane without popping
+Seane* topSeane = manager->PeekSeane();
+if (topSeane) {
+    SDL_Log("Top seane is active");
+}
+
+// Example 7: Check if seane is in stack
+if (manager->IsSeaneInStack("Pause")) {
+    SDL_Log("Game is paused!");
+}
+
+// Example 8: Get stack size
+int stackSize = manager->GetStackSize();
+SDL_Log("Number of seanes rendering: %d", stackSize);
+
+// Example 9: Checking if a seane exists
+if (manager->HasSeane("MainMenu")) {
+    SDL_Log("MainMenu seane exists");
+}
+
+// Example 10: Deleting a specific seane
+manager->DeleteSeane("Settings");
+
+// Example 11: Clearing all seanes
+manager->ClearAllSeanes();
+
+// Example 12: Getting seane count
+int count = manager->GetSeaneCount();
+SDL_Log("Total registered seanes: %d", count);
+
+// ============================
+// IMPORTANT: Rendering vs Update vs HandleEvents
+// ============================
+// Render():
+//   - Renders ALL seanes in stack (bottom to top)
+//   - This is how you get layering effect (pause menu on game)
+//   
+// Update():
+//   - Only updates the TOP seane in stack
+//   - Paused game doesn't update, only pause menu updates
+//   
+// HandleEvents():
+//   - Only top seane receives events
+//   - Pause menu captures input, not the game below
+
+// ============================
+// Complete Usage Flow Example
+// ============================
+// 1. Game starts with "Game" seane
+//    - Render: Game seane rendered
+//    - Update: Game seane updates
+//    - Events: Game seane handles input
+//
+// 2. Player presses Pause (space key)
+//    - manager->PushSeane("Pause")
+//    - Render: Game + Pause (both visible)
+//    - Update: Only Pause updates
+//    - Events: Pause seane captures input (game doesn't respond)
+//
+// 3. Player clicks Resume button
+//    - manager->PopSeane()
+//    - Render: Game only
+//    - Update: Game updates again
+//    - Events: Game seane handles input again
+//
+// ============================
+// SeaneManager Features:
+// ============================
+// 1. AddSeane() - Add a new seane with unique name
+// 2. DeleteSeane() - Remove a specific seane
+// 3. ClearAllSeanes() - Remove all seanes at once
+// 4. PushSeane() - Push seane to stack (renders on top)
+// 5. PopSeane() - Pop from stack (removes top layer)
+// 6. PeekSeane() - Get top seane without popping
+// 7. GetStackSize() - Get number of seanes in stack
+// 8. SetCurrentSeane() - Directly set current seane
+// 9. GetCurrentSeane() - Get currently active seane
+// 10. HasSeane() - Check if a seane exists
+// 11. IsSeaneInStack() - Check if seane is in rendering stack
+// 12. GetSeaneCount() - Get total number of registered seanes
+// 13. GetAllSeanes() - Return vector of all registered seane names
+// 14. GetAllStackSeanes() - Return vector of seanes in stack (bottom to top)
+// 15. Render() - Render all seanes in stack
+// 16. Update() - Update only top seane
+// 17. HandleEvents() - Pass events to only top seane
+

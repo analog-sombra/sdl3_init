@@ -37,11 +37,19 @@ Engine::Engine(std::string title)
     // Initialize AssetsManager
     assetsManager = new AssetsManager(renderer);
 
-    testSeane = new TestSeane(assetsManager, renderer);
+    // Initialize SeaneManager
+    seaneManager = new SeaneManager(assetsManager, renderer);
+    
+    // Create and add the default TestSeane
+    auto testSeane = std::make_unique<TestSeane>(assetsManager, renderer);
+    seaneManager->AddSeane("TestSeane", std::move(testSeane));
+    seaneManager->SetCurrentSeane("TestSeane");
 }
 
 Engine::~Engine()
 {
+    // Clean up SeaneManager
+    delete seaneManager;
     // Clean up EngineDebug
     delete engineDebug;
     // Clean up AssetsManager
@@ -90,14 +98,14 @@ void Engine::Render()
     engineDebug->NewFrame();
     engineDebug->Render(renderer);
     SDL_RenderDebugText(renderer, 10, 10, "Hello SDL3!");
-    testSeane->Render();
+    seaneManager->Render();
 
     SDL_RenderPresent(renderer);
 }
 
 void Engine::Update()
 {
-    testSeane->Update();
+    seaneManager->Update();
 }
 
 void Engine::HandleEvents()
@@ -106,7 +114,7 @@ void Engine::HandleEvents()
     while (SDL_PollEvent(&event))
     {
         engineDebug->ProcessEvent(&event);
-        testSeane->HandleEvents(&event);
+        seaneManager->HandleEvents(&event);
         if (event.type == SDL_EVENT_QUIT)
         {
             running = false;
@@ -117,6 +125,11 @@ void Engine::HandleEvents()
             fullscreen = !fullscreen;
         }
     }
+}
+
+SeaneManager *Engine::GetSeaneManager() const
+{
+    return seaneManager;
 }
 
 // driver functions
