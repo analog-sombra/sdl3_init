@@ -26,9 +26,7 @@ public:
     Seane *PeekSeane() const;  // Get top seane without popping
     int GetStackSize() const;
     
-    // Set and get current seane (direct access without stack)
-    void SetCurrentSeane(const std::string &name);
-    Seane *GetCurrentSeane() const;
+
     
     // Utility methods
     std::vector<std::string> GetAllSeanes() const;  // Return all registered seanes
@@ -48,7 +46,6 @@ public:
 private:
     AssetsManager *assetsManager;
     SDL_Renderer *renderer;
-    Seane *currentSeane;
     std::map<std::string, std::unique_ptr<Seane>> seanes;
     std::stack<std::string> seaneStack;
 };

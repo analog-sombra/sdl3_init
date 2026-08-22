@@ -12,8 +12,8 @@ manager->AddSeane("Game", std::move(gameSeane));
 manager->AddSeane("Pause", std::move(pauseSeane));
 
 // Example 2: LAYERED RENDERING - Pause Menu on top of Gameplay
-// Set Game seane as current
-manager->SetCurrentSeane("Game");
+// Push Game seane to stack
+manager->PushSeane("Game");
 
 // Player presses pause
 manager->PushSeane("Pause");

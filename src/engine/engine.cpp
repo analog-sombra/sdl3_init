@@ -43,7 +43,7 @@ Engine::Engine(std::string title)
     // Create and add the default TestSeane
     auto testSeane = std::make_unique<TestSeane>(assetsManager, renderer);
     seaneManager->AddSeane("TestSeane", std::move(testSeane));
-    seaneManager->SetCurrentSeane("TestSeane");
+    seaneManager->PushSeane("TestSeane");  // Push to stack so it renders!
 }
 
 Engine::~Engine()
