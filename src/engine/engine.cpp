@@ -33,6 +33,11 @@ Engine::Engine(std::string title)
 
     // Initialize EngineDebug
     engineDebug = new EngineDebug(window, renderer);
+
+    // Initialize AssetsManager
+    assetsManager = new AssetsManager(renderer);
+    assetsManager->LoadFont("ui_default", "./assets/font/candy.otf", 24);
+    assetsManager->LoadTexture("player_idle", "./assets/images/player.png");
 }
 Engine::~Engine()
 {
@@ -41,7 +46,11 @@ Engine::~Engine()
     if (window)
         SDL_DestroyWindow(window);
     TTF_Quit();
+    // Clean up EngineDebug
     delete engineDebug;
+    // Clean up AssetsManager
+    delete assetsManager;
+    // Quit SDL
     SDL_Quit();
 }
 

@@ -6,6 +6,7 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <fmt/core.h>
 #include "engine/debug/engine_debug.hpp"
+#include "engine/assets_manager.hpp"
 
 class Engine
 {
@@ -14,6 +15,7 @@ private:
     SDL_Renderer *renderer;
     bool running = true;
     EngineDebug *engineDebug;
+    AssetsManager *assetsManager;
 
 public:
     Engine(std::string title);
