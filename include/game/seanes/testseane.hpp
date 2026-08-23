@@ -13,7 +13,7 @@
 #include "engine/element/text_element.hpp"
 #include "engine/element/image_element.hpp"
 #include "engine/seane/seane.hpp"
-
+#include "engine/element/rect_element.hpp"
 class TestSeane : public Seane
 {
     flecs::system inputSystem;

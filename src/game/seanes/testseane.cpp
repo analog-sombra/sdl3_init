@@ -12,10 +12,13 @@ TestSeane::TestSeane(AssetsManager *assetsManager, SDL_Renderer *renderer) : Sea
 
     auto texture = assetsManager->GetTexture("player_idle");
     CreateImage(renderer, texture.get(), world);
+
+    CreateRect(world, SDL_FRect{100.f, 100.f, 50.f, 50.f});
+
     textQuery = world.query<TextElement>();
     imageQuery = world.query<ImageElement>();
 
-        // Create input system
+    // Create input system
     const float speed = 5.0f;
     inputSystem = world.system<ImageElement>()
                       .each([this, speed](flecs::entity e, ImageElement &imageelement)
@@ -78,7 +81,14 @@ void TestSeane::Render()
             imageelement.rect.h
         };
         SDL_RenderTexture(this->renderer, imageelement.texture, nullptr, &rect); });
+
+    auto q3 = world.query<RectElement>();
+    q3.each([this](flecs::entity e, RectElement &rectElement)
+            {  
+             SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255); // Red color
+             SDL_RenderFillRect(this->renderer, &rectElement.rect); });
 }
+
 void TestSeane::Update()
 {
 }

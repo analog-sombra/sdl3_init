@@ -1,5 +1,4 @@
 #include "game/setup/game_setup.hpp"
-#include "game/seanes/seane_factory.hpp"
 #include "engine/seane/seane_manager.hpp"
 #include "game/seanes/testseane.hpp"
 

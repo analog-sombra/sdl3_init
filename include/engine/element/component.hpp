@@ -4,6 +4,10 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
+struct Render
+{
+    bool isVisible;
+};
 struct TextElement
 {
     SDL_Texture *texture;
@@ -14,6 +18,11 @@ struct ImageElement
 {
     SDL_FRect rect;
     SDL_Texture *texture;
+};
+
+struct RectElement
+{
+    SDL_FRect rect;
 };
 
 #endif // __ELEMENT_COMPONENT_HPP__
