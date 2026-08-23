@@ -8,10 +8,12 @@
 #include <string>
 #include <map>
 #include <memory>
-#include "../element/component.hpp"
-#include "../assets_manager.hpp"
-#include "../element/text_element.hpp"
-#include "../element/image_element.hpp"
+#include "engine/element/component.hpp"
+#include "engine/assets_manager.hpp"
+#include "engine/element/text_element.hpp"
+#include "engine/element/image_element.hpp"
+
+class SeaneManager; // Forward declaration
 
 class Seane
 {
@@ -19,11 +21,21 @@ protected:
     flecs::world world;
     AssetsManager *assetsManager;
     SDL_Renderer *renderer;
+    std::weak_ptr<SeaneManager> seaneManager;
 
 public:
     Seane(AssetsManager *assetsManager, SDL_Renderer *renderer) 
         : world(), assetsManager(assetsManager), renderer(renderer) {};
     virtual ~Seane() {};
+    
+    void SetSeaneManager(std::weak_ptr<SeaneManager> manager) {
+        seaneManager = manager;
+    }
+    
+    std::shared_ptr<SeaneManager> GetSeaneManager() const {
+        return seaneManager.lock();
+    }
+    
     virtual void Render() = 0;
     virtual void Update() = 0;
     virtual void HandleEvents(SDL_Event *event) = 0;

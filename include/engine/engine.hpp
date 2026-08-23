@@ -7,7 +7,7 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <flecs.h>
-#include "game/testseane.hpp"
+#include "game/setup/game_setup.hpp"
 #include "engine/debug/engine_debug.hpp"
 #include "engine/assets_manager.hpp"
 #include "engine/seane/seane_manager.hpp"
@@ -21,7 +21,7 @@ private:
     SDL_Renderer *renderer;
     EngineDebug *engineDebug;
     AssetsManager *assetsManager;
-    SeaneManager *seaneManager;
+    std::shared_ptr<SeaneManager> seaneManager;
     bool running = true;
     bool fullscreen = false;
 
@@ -33,9 +33,6 @@ public:
     void Render();
     void Update();
     void HandleEvents();
-    
-    // Seane management
-    SeaneManager *GetSeaneManager() const;
 
     // driver fuctions
     void GetAllRenderDrivers();

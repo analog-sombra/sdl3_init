@@ -9,6 +9,8 @@
 #include <vector>
 #include <stack>
 
+class SeaneManager; // Forward declaration for shared_ptr in Seane
+
 class SeaneManager
 {
 public:
@@ -16,7 +18,7 @@ public:
     ~SeaneManager();
     
     // Add and manage seanes
-    void AddSeane(const std::string &name, std::unique_ptr<Seane> seane);
+    void AddSeane(const std::string &name, std::unique_ptr<Seane> seane, std::shared_ptr<SeaneManager> manager = nullptr);
     void DeleteSeane(const std::string &name);
     void ClearAllSeanes();
     

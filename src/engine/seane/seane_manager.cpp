@@ -13,12 +13,18 @@ SeaneManager::~SeaneManager()
     SDL_Log("SeaneManager destroyed");
 }
 
-void SeaneManager::AddSeane(const std::string &name, std::unique_ptr<Seane> seane)
+void SeaneManager::AddSeane(const std::string &name, std::unique_ptr<Seane> seane, std::shared_ptr<SeaneManager> manager)
 {
     if (seanes.find(name) != seanes.end())
     {
         SDL_Log("Seane '%s' already exists", name.c_str());
         return;
+    }
+    
+    // Set the manager reference in the seane if provided
+    if (manager)
+    {
+        seane->SetSeaneManager(manager);
     }
     
     seanes[name] = std::move(seane);

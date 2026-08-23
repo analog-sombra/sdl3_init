@@ -18,7 +18,7 @@ Engine::Engine(std::string title)
     }
 
     // Create an SDL renderer
-    renderer = SDL_CreateRenderer(window, "opengl");
+    renderer = SDL_CreateRenderer(window, nullptr);
 
     if (renderer == nullptr)
     {
@@ -37,19 +37,21 @@ Engine::Engine(std::string title)
     // Initialize AssetsManager
     assetsManager = new AssetsManager(renderer);
 
-    // Initialize SeaneManager
-    seaneManager = new SeaneManager(assetsManager, renderer);
-    
-    // Create and add the default TestSeane
-    auto testSeane = std::make_unique<TestSeane>(assetsManager, renderer);
-    seaneManager->AddSeane("TestSeane", std::move(testSeane));
-    seaneManager->PushSeane("TestSeane");  // Push to stack so it renders!
+    // Initialize SeaneManager with shared_ptr
+    seaneManager = std::make_shared<SeaneManager>(assetsManager, renderer);
+
+    // Initialize all game seanes using GameSetup
+    // NOTE: All seane setup logic is now in game/setup/game_setup.cpp
+    // To add new seanes, modify GameSetup::InitializeSeanes() in game/setup/
+    GameSetup::InitializeSeanes(seaneManager, assetsManager, renderer);
+
+    SDL_Log("Engine initialized successfully");
 }
 
 Engine::~Engine()
 {
-    // Clean up SeaneManager
-    delete seaneManager;
+    // Clean up SeaneManager (shared_ptr auto cleanup)
+    seaneManager.reset();
     // Clean up EngineDebug
     delete engineDebug;
     // Clean up AssetsManager
@@ -125,11 +127,6 @@ void Engine::HandleEvents()
             fullscreen = !fullscreen;
         }
     }
-}
-
-SeaneManager *Engine::GetSeaneManager() const
-{
-    return seaneManager;
 }
 
 // driver functions

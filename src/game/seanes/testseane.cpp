@@ -1,4 +1,4 @@
-#include "game/testseane.hpp"
+#include "game/seanes/testseane.hpp"
 
 TestSeane::TestSeane(AssetsManager *assetsManager, SDL_Renderer *renderer) : Seane(assetsManager, renderer)
 {
@@ -15,9 +15,7 @@ TestSeane::TestSeane(AssetsManager *assetsManager, SDL_Renderer *renderer) : Sea
     textQuery = world.query<TextElement>();
     imageQuery = world.query<ImageElement>();
 
-    
-
-    // Create input system
+        // Create input system
     const float speed = 5.0f;
     inputSystem = world.system<ImageElement>()
                       .each([this, speed](flecs::entity e, ImageElement &imageelement)
