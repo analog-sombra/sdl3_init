@@ -14,6 +14,7 @@
 #include "engine/element/image_element.hpp"
 #include "engine/seane/seane.hpp"
 #include "engine/element/rect_element.hpp"
+#include "const.hpp"
 class TestSeane : public Seane
 {
     flecs::system inputSystem;

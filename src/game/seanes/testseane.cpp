@@ -13,7 +13,18 @@ TestSeane::TestSeane(AssetsManager *assetsManager, SDL_Renderer *renderer) : Sea
     auto texture = assetsManager->GetTexture("player_idle");
     CreateImage(renderer, texture.get(), world);
 
-    CreateRect(world, SDL_FRect{100.f, 100.f, 50.f, 50.f});
+    const float boxs = 20.f;
+    const float gap = 10.f;
+    const float padding = 10.f;
+    const float width = (WINDOW_WIDTH - padding * 2 - gap * (boxs - 1)) / boxs;
+
+    for (int i = 0; i < boxs; i++)
+    {
+        SDL_FRect rect{padding + i * (width + gap), WINDOW_HEIGHT - 310, width, 300};
+        CreateRect(world, rect);
+    }
+
+    // CreateRect(world, SDL_FRect{100.f, 100.f, 50.f, 50.f});
 
     textQuery = world.query<TextElement>();
     imageQuery = world.query<ImageElement>();
