@@ -1,5 +1,5 @@
 #include "engine/element/text_element.hpp"
-flecs::entity CreateText(SDL_Renderer *renderer, flecs::world &world, TTF_Font *font, const std::string &text)
+flecs::entity CreateText(SDL_Renderer *renderer, flecs::world &world, TTF_Font *font, const std::string &text, float x, float y)
 {
     auto entity = world.entity();
 
@@ -8,7 +8,7 @@ flecs::entity CreateText(SDL_Renderer *renderer, flecs::world &world, TTF_Font *
 
     entity.set<TextElement>(
         {textTexture,
-         SDL_FRect{10.f, 50.f, 200.f, 50.f}});
+         SDL_FRect{x, y, static_cast<float>(textSurface->w), static_cast<float>(textSurface->h)}});
     SDL_DestroySurface(textSurface);
     return entity;
 }

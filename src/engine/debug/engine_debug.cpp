@@ -41,9 +41,9 @@ void EngineDebug::NewFrame()
 
 void EngineDebug::Render(SDL_Renderer *renderer)
 {
-    ImGui::Begin("Pop-out Window");
-    ImGui::Text("Drag this window outside the main application window!");
-    ImGui::End();
+    // ImGui::Begin("Pop-out Window");
+    // ImGui::Text("Drag this window outside the main application window!");
+    // ImGui::End();
 
     // Render Main Frame
     ImGui::Render();

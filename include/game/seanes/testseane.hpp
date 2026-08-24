@@ -40,7 +40,7 @@ class TestSeane : public Seane
     float gap = 10.f;
     
     // Timing with deltaTime
-    const float stepDuration = 0.3f;  // Time between sort steps in seconds
+    const float stepDuration = 0.1f;  // Time between sort steps in seconds
     float elapsedTime = 0.0f;
 
 public:

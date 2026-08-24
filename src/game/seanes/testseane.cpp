@@ -8,10 +8,10 @@ TestSeane::TestSeane(AssetsManager *assetsManager, SDL_Renderer *renderer) : Sea
 
     // basic text
     auto font = assetsManager->GetFont("ui_default");
-    CreateText(renderer, world, font.get(), "Bubble Sort Visualization");
+    CreateText(renderer, world, font.get(), "Bubble Sort Visualization", 10, 10);
 
     auto texture = assetsManager->GetTexture("player_idle");
-    CreateImage(renderer, texture.get(), world);
+    CreateImage(renderer, texture.get(), world, 10, 10);
 
     const float boxs = 20.f;
     gap = 10.f;
@@ -33,8 +33,8 @@ TestSeane::TestSeane(AssetsManager *assetsManager, SDL_Renderer *renderer) : Sea
         SDL_FRect rect{padding + i * (width + gap), WINDOW_HEIGHT - hight[i], width, hight[i]};
         rectEntities.push_back(CreateRect(world, rect));
     }
-    
-    sorting = true;  // Start sorting
+
+    sorting = true; // Start sorting
 
     // CreateRect(world, SDL_FRect{100.f, 100.f, 50.f, 50.f});
 
@@ -123,27 +123,26 @@ void TestSeane::Render()
                  SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255); // Red for unsorted
              }
              SDL_RenderFillRect(this->renderer, &rectElement.rect);
-             index++;
-            });
+             index++; });
 }
 
 void TestSeane::Update(float deltaTime)
 {
     // Update timers
     timerManager.Update(deltaTime);
-    
+
     // Bubble sort one step per stepDuration
     if (!sorting)
         return;
 
     elapsedTime += deltaTime;
     if (elapsedTime < stepDuration)
-        return;  // Not enough time has passed yet
-    
-    elapsedTime = 0.0f;  // Reset timer
+        return; // Not enough time has passed yet
+
+    elapsedTime = 0.0f; // Reset timer
 
     const int n = 20;
-    
+
     if (sortI < n - 1)
     {
         if (sortJ < n - sortI - 1)
@@ -152,7 +151,7 @@ void TestSeane::Update(float deltaTime)
             {
                 // Swap heights
                 std::swap(hight[sortJ], hight[sortJ + 1]);
-                
+
                 // Update rect positions
                 UpdateRectPosition(sortJ, hight[sortJ]);
                 UpdateRectPosition(sortJ + 1, hight[sortJ + 1]);
@@ -167,7 +166,7 @@ void TestSeane::Update(float deltaTime)
     }
     else
     {
-        sorting = false;  // Sorting complete
+        sorting = false; // Sorting complete
         SDL_Log("Bubble sort complete!");
     }
 }
@@ -176,10 +175,10 @@ void TestSeane::UpdateRectPosition(int index, float newHeight)
 {
     if (index < 0 || index >= rectEntities.size())
         return;
-    
-     auto entity = rectEntities[index];
+
+    auto entity = rectEntities[index];
     RectElement &rectElement = entity.get_mut<RectElement>();
-    
+
     rectElement.rect.y = WINDOW_HEIGHT - newHeight;
     rectElement.rect.h = newHeight;
 }

@@ -7,6 +7,6 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <flecs.h>
 
-flecs::entity CreateText(SDL_Renderer *renderer, flecs::world &world, TTF_Font *font, const std::string &text);
+flecs::entity CreateText(SDL_Renderer *renderer, flecs::world &world, TTF_Font *font, const std::string &text, float x, float y);
 
 #endif // _TEXT_ELEMENT_HPP__

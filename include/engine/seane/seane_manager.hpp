@@ -26,6 +26,7 @@ public:
     void PushSeane(const std::string &name);
     void PopSeane();
     Seane *PeekSeane() const;  // Get top seane without popping
+    Seane *GetSeane(const std::string &name) const;  // Get a seane by name
     int GetStackSize() const;
     
 

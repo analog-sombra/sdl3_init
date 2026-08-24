@@ -10,6 +10,7 @@
 flecs::entity CreateImage(
     SDL_Renderer *renderer,
     SDL_Texture *texture,
-    flecs::world &world);
+    flecs::world &world,
+    float x, float y);
 
 #endif // __IMAGE_ELEMENT_HPP__

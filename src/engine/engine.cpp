@@ -128,7 +128,7 @@ void Engine::HandleEvents()
         {
             running = false;
         }
-        if (event.key.key == SDLK_F11)
+        if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_F11)
         {
             SDL_SetWindowFullscreen(window, fullscreen);
             fullscreen = !fullscreen;

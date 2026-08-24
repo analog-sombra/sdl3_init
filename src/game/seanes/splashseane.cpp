@@ -8,13 +8,14 @@ SplashSeane::SplashSeane(AssetsManager *assetsManager, SDL_Renderer *renderer) :
 
     // basic text
     auto font = assetsManager->GetFont("ui_default");
-    CreateText(renderer, world, font.get(), "Bubble Sort Visualization");
+    CreateText(renderer, world, font.get(), "Snake Will Eat You", WINDOW_WIDTH / 2 - 100, WINDOW_HEIGHT / 2 - 50);
     // SDL_Log("SplashSeane initialized");
     // Schedule transition to TestSeane after 5 seconds
     timerManager.Schedule([this]()
     {
         if (auto manager = seaneManager.lock())
         {
+            manager->PopSeane(); // Remove the current SplashSeane
             manager->PushSeane("TestSeane");
         }
     }, 5.0f);

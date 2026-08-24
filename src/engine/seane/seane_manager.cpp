@@ -4,13 +4,11 @@
 SeaneManager::SeaneManager(AssetsManager *assetsManager, SDL_Renderer *renderer)
     : assetsManager(assetsManager), renderer(renderer)
 {
-    SDL_Log("SeaneManager initialized");
 }
 
 SeaneManager::~SeaneManager()
 {
     ClearAllSeanes();
-    SDL_Log("SeaneManager destroyed");
 }
 
 void SeaneManager::AddSeane(const std::string &name, std::unique_ptr<Seane> seane, std::shared_ptr<SeaneManager> manager)
@@ -20,15 +18,14 @@ void SeaneManager::AddSeane(const std::string &name, std::unique_ptr<Seane> sean
         SDL_Log("Seane '%s' already exists", name.c_str());
         return;
     }
-    
+
     // Set the manager reference in the seane if provided
     if (manager)
     {
         seane->SetSeaneManager(manager);
     }
-    
+
     seanes[name] = std::move(seane);
-    SDL_Log("Seane '%s' added to manager", name.c_str());
 }
 
 void SeaneManager::DeleteSeane(const std::string &name)
@@ -39,7 +36,7 @@ void SeaneManager::DeleteSeane(const std::string &name)
         SDL_Log("Seane '%s' not found", name.c_str());
         return;
     }
-    
+
     seanes.erase(it);
     SDL_Log("Seane '%s' deleted", name.c_str());
 }
@@ -47,17 +44,13 @@ void SeaneManager::DeleteSeane(const std::string &name)
 void SeaneManager::ClearAllSeanes()
 {
     seanes.clear();
-    
+
     // Clear the stack
     while (!seaneStack.empty())
     {
         seaneStack.pop();
     }
-    
-    SDL_Log("All seanes cleared");
 }
-
-
 
 void SeaneManager::PushSeane(const std::string &name)
 {
@@ -67,7 +60,7 @@ void SeaneManager::PushSeane(const std::string &name)
         SDL_Log("Seane '%s' not found", name.c_str());
         return;
     }
-    
+
     seaneStack.push(name);
     SDL_Log("Seane '%s' pushed to stack (stack size: %d)", name.c_str(), (int)seaneStack.size());
 }
@@ -79,10 +72,10 @@ void SeaneManager::PopSeane()
         SDL_Log("Seane stack is empty, cannot pop");
         return;
     }
-    
+
     std::string poppedSeane = seaneStack.top();
     seaneStack.pop();
-    
+
     if (seaneStack.empty())
     {
         SDL_Log("Seane '%s' popped. Stack is now empty", poppedSeane.c_str());
@@ -100,14 +93,24 @@ Seane *SeaneManager::PeekSeane() const
     {
         return nullptr;
     }
-    
+
     std::string topSeane = seaneStack.top();
     auto it = seanes.find(topSeane);
     if (it != seanes.end())
     {
         return it->second.get();
     }
-    
+
+    return nullptr;
+}
+
+Seane *SeaneManager::GetSeane(const std::string &name) const
+{
+    auto it = seanes.find(name);
+    if (it != seanes.end())
+    {
+        return it->second.get();
+    }
     return nullptr;
 }
 
@@ -115,8 +118,6 @@ int SeaneManager::GetStackSize() const
 {
     return seaneStack.size();
 }
-
-
 
 std::vector<std::string> SeaneManager::GetAllSeanes() const
 {
@@ -131,7 +132,7 @@ std::vector<std::string> SeaneManager::GetAllSeanes() const
 std::vector<std::string> SeaneManager::GetAllStackSeanes() const
 {
     std::vector<std::string> stackSeanes;
-    
+
     // Convert stack to vector (bottom to top)
     std::stack<std::string> tempStack = seaneStack;
     while (!tempStack.empty())
@@ -139,7 +140,7 @@ std::vector<std::string> SeaneManager::GetAllStackSeanes() const
         stackSeanes.insert(stackSeanes.begin(), tempStack.top());
         tempStack.pop();
     }
-    
+
     return stackSeanes;
 }
 
@@ -201,4 +202,3 @@ void SeaneManager::HandleEvents(SDL_Event *event)
         topSeane->HandleEvents(event);
     }
 }
-
