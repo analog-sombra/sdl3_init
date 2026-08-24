@@ -18,6 +18,7 @@ find_package(flecs CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(box2d CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+find_package(efsw CONFIG REQUIRED)
 
 # Include Directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -47,6 +48,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     flecs::flecs
     box2d::box2d
     fmt::fmt
+    efsw::efsw
 )
 
 # On Windows, explicitly link opengl32

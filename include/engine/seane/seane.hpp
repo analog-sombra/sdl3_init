@@ -37,7 +37,7 @@ public:
     }
     
     virtual void Render() = 0;
-    virtual void Update() = 0;
+    virtual void Update(float deltaTime) = 0;
     virtual void HandleEvents(SDL_Event *event) = 0;
 };
 

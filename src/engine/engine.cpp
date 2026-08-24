@@ -71,8 +71,18 @@ void Engine::Run()
 {
     Uint64 fps = 0;
     Uint64 fpsTimer = SDL_GetTicks();
+    lastFrameTime = SDL_GetTicks();
+    
     while (running)
     {
+        Uint64 currentFrameTime = SDL_GetTicks();
+        deltaTime = (currentFrameTime - lastFrameTime) / 1000.0f;  // Convert to seconds
+        lastFrameTime = currentFrameTime;
+        
+        // Cap deltaTime to prevent large jumps (e.g., if paused/debugged)
+        if (deltaTime > 0.05f)  // Max 50ms per frame
+            deltaTime = 0.05f;
+        
         HandleEvents();
         Update();
         Render();
@@ -82,9 +92,7 @@ void Engine::Run()
 
         if (now - fpsTimer >= 1000)
         {
-            // SDL_Log("FPS: %llu", fps);
             SDL_SetWindowTitle(window, fmt::format("Engine Window - FPS: {}", fps).c_str());
-
             fps = 0;
             fpsTimer = now;
         }
@@ -99,7 +107,6 @@ void Engine::Render()
 
     engineDebug->NewFrame();
     engineDebug->Render(renderer);
-    SDL_RenderDebugText(renderer, 10, 10, "Hello SDL3!");
     seaneManager->Render();
 
     SDL_RenderPresent(renderer);
@@ -107,7 +114,7 @@ void Engine::Render()
 
 void Engine::Update()
 {
-    seaneManager->Update();
+    seaneManager->Update(deltaTime);
 }
 
 void Engine::HandleEvents()

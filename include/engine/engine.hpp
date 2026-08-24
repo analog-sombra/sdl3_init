@@ -24,6 +24,10 @@ private:
     std::shared_ptr<SeaneManager> seaneManager;
     bool running = true;
     bool fullscreen = false;
+    
+    // Delta time tracking
+    Uint64 lastFrameTime = 0;
+    float deltaTime = 0.0f;
 
 public:
     Engine(std::string title);

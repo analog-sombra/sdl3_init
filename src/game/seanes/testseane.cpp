@@ -8,21 +8,33 @@ TestSeane::TestSeane(AssetsManager *assetsManager, SDL_Renderer *renderer) : Sea
 
     // basic text
     auto font = assetsManager->GetFont("ui_default");
-    CreateText(renderer, world, font.get(), "Hello SDL3!");
+    CreateText(renderer, world, font.get(), "Bubble Sort Visualization");
 
     auto texture = assetsManager->GetTexture("player_idle");
     CreateImage(renderer, texture.get(), world);
 
     const float boxs = 20.f;
-    const float gap = 10.f;
-    const float padding = 10.f;
-    const float width = (WINDOW_WIDTH - padding * 2 - gap * (boxs - 1)) / boxs;
+    gap = 10.f;
+    padding = 10.f;
+    width = (WINDOW_WIDTH - padding * 2 - gap * (boxs - 1)) / boxs;
+
+    const float min_h = 20.f;
+    const float max_h = WINDOW_HEIGHT - 20.f;
+    // 20 random heights from min_h to max_h
 
     for (int i = 0; i < boxs; i++)
     {
-        SDL_FRect rect{padding + i * (width + gap), WINDOW_HEIGHT - 310, width, 300};
-        CreateRect(world, rect);
+        float random_h = min_h + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max_h - min_h)));
+        hight[i] = random_h;
     }
+
+    for (int i = 0; i < boxs; i++)
+    {
+        SDL_FRect rect{padding + i * (width + gap), WINDOW_HEIGHT - hight[i], width, hight[i]};
+        rectEntities.push_back(CreateRect(world, rect));
+    }
+    
+    sorting = true;  // Start sorting
 
     // CreateRect(world, SDL_FRect{100.f, 100.f, 50.f, 50.f});
 
@@ -69,37 +81,105 @@ void TestSeane::HandleEvents(SDL_Event *event)
 void TestSeane::Render()
 {
 
-    auto q = textQuery;
+    // auto q = textQuery;
 
-    q.each([this](flecs::entity e, TextElement &textelement)
-           {
-            SDL_FRect rect{
-                textelement.rect.x,
-                textelement.rect.y,
-                textelement.rect.w,
-                textelement.rect.h
-            };
-            SDL_RenderTexture(this->renderer, textelement.texture, nullptr, &rect); });
+    // q.each([this](flecs::entity e, TextElement &textelement)
+    //        {
+    //         SDL_FRect rect{
+    //             textelement.rect.x,
+    //             textelement.rect.y,
+    //             textelement.rect.w,
+    //             textelement.rect.h
+    //         };
+    //         SDL_RenderTexture(this->renderer, textelement.texture, nullptr, &rect); });
 
-    auto q2 = imageQuery;
+    // auto q2 = imageQuery;
 
-    q2.each([this](flecs::entity e, ImageElement &imageelement)
-            {
-        SDL_FRect rect{
-            imageelement.rect.x,
-            imageelement.rect.y,
-            imageelement.rect.w,
-            imageelement.rect.h
-        };
-        SDL_RenderTexture(this->renderer, imageelement.texture, nullptr, &rect); });
+    // q2.each([this](flecs::entity e, ImageElement &imageelement)
+    //         {
+    //     SDL_FRect rect{
+    //         imageelement.rect.x,
+    //         imageelement.rect.y,
+    //         imageelement.rect.w,
+    //         imageelement.rect.h
+    //     };
+    //     SDL_RenderTexture(this->renderer, imageelement.texture, nullptr, &rect); });
 
     auto q3 = world.query<RectElement>();
-    q3.each([this](flecs::entity e, RectElement &rectElement)
+    int index = 0;
+    q3.each([this, &index](flecs::entity e, RectElement &rectElement)
             {  
-             SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255); // Red color
-             SDL_RenderFillRect(this->renderer, &rectElement.rect); });
+             // Color based on sorting state
+             if (sorting && (index == sortJ || index == sortJ + 1))
+             {
+                 SDL_SetRenderDrawColor(this->renderer, 255, 255, 0, 255); // Yellow for comparing
+             }
+             else if (index >= 20 - sortI)
+             {
+                 SDL_SetRenderDrawColor(this->renderer, 0, 255, 0, 255); // Green for sorted
+             }
+             else
+             {
+                 SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255); // Red for unsorted
+             }
+             SDL_RenderFillRect(this->renderer, &rectElement.rect);
+             index++;
+            });
 }
 
-void TestSeane::Update()
+void TestSeane::Update(float deltaTime)
 {
+    // Update timers
+    timerManager.Update(deltaTime);
+    
+    // Bubble sort one step per stepDuration
+    if (!sorting)
+        return;
+
+    elapsedTime += deltaTime;
+    if (elapsedTime < stepDuration)
+        return;  // Not enough time has passed yet
+    
+    elapsedTime = 0.0f;  // Reset timer
+
+    const int n = 20;
+    
+    if (sortI < n - 1)
+    {
+        if (sortJ < n - sortI - 1)
+        {
+            if (hight[sortJ] > hight[sortJ + 1])
+            {
+                // Swap heights
+                std::swap(hight[sortJ], hight[sortJ + 1]);
+                
+                // Update rect positions
+                UpdateRectPosition(sortJ, hight[sortJ]);
+                UpdateRectPosition(sortJ + 1, hight[sortJ + 1]);
+            }
+            sortJ++;
+        }
+        else
+        {
+            sortJ = 0;
+            sortI++;
+        }
+    }
+    else
+    {
+        sorting = false;  // Sorting complete
+        SDL_Log("Bubble sort complete!");
+    }
+}
+
+void TestSeane::UpdateRectPosition(int index, float newHeight)
+{
+    if (index < 0 || index >= rectEntities.size())
+        return;
+    
+     auto entity = rectEntities[index];
+    RectElement &rectElement = entity.get_mut<RectElement>();
+    
+    rectElement.rect.y = WINDOW_HEIGHT - newHeight;
+    rectElement.rect.h = newHeight;
 }

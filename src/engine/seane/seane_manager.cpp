@@ -182,13 +182,13 @@ void SeaneManager::Render()
     }
 }
 
-void SeaneManager::Update()
+void SeaneManager::Update(float deltaTime)
 {
     // Only update the top seane in the stack
     Seane *topSeane = PeekSeane();
     if (topSeane != nullptr)
     {
-        topSeane->Update();
+        topSeane->Update(deltaTime);
     }
 }
 

@@ -41,7 +41,7 @@ public:
     // Renders ALL seanes in stack (bottom to top)
     void Render();
     // Only updates top seane in stack
-    void Update();
+    void Update(float deltaTime);
     // Only top seane handles events
     void HandleEvents(SDL_Event *event);
 

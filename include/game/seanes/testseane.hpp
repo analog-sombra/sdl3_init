@@ -14,18 +14,41 @@
 #include "engine/element/image_element.hpp"
 #include "engine/seane/seane.hpp"
 #include "engine/element/rect_element.hpp"
+#include "engine/timer/timer.hpp"
 #include "const.hpp"
+#include <random>
+#include <vector>
+
 class TestSeane : public Seane
 {
     flecs::system inputSystem;
     flecs::query<TextElement> textQuery;
     flecs::query<ImageElement> imageQuery;
 
+    // Timer manager for scheduling
+    TimerManager timerManager;
+
+    float hight[20];
+    std::vector<flecs::entity> rectEntities;  // Store rect entities for updating
+    
+    // Bubble sort state
+    int sortI = 0;
+    int sortJ = 0;
+    bool sorting = false;
+    float padding = 10.f;
+    float width = 0.f;
+    float gap = 10.f;
+    
+    // Timing with deltaTime
+    const float stepDuration = 0.3f;  // Time between sort steps in seconds
+    float elapsedTime = 0.0f;
+
 public:
     TestSeane(AssetsManager *assetsManager, SDL_Renderer *renderer);
     ~TestSeane();
     void Render();
-    void Update();
+    void Update(float deltaTime);  // Now accepts deltaTime parameter
+    void UpdateRectPosition(int index, float newHeight);
     void HandleEvents(SDL_Event *event);
 };
 
